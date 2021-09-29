@@ -2,6 +2,9 @@
  ### Amazon Simple Email Service Forwarder
  ### Serverless Lambda Python Function
  
+ To setup the lambda function / AWS SES please read the following guide :<br>
+ https://aws.amazon.com/fr/blogs/messaging-and-targeting/forward-incoming-email-to-an-external-destination/
+ 
 # Lambda environment variables configuration
 
 | Name        | Description           |
