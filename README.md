@@ -5,6 +5,8 @@
  To setup the lambda function / AWS SES please read the following guide :<br>
  https://aws.amazon.com/fr/blogs/messaging-and-targeting/forward-incoming-email-to-an-external-destination/
  
+  *** IMPORTANT : (Only for email file attachment) on your AWS Lambda function you must set a memory configuration of at least 512 MB, otherwise due to file attachment the AWS Lambda function can fail to execute due to "out of memory".
+  
 # Lambda environment variables configuration
 
 | Name        | Description           |
