@@ -12,7 +12,7 @@
 | Name        | Description           |
 | ------------- |:-------------:|
 | AddHeader      | If we need to add the received header into the email message.<br><br>Value must be "True" or "False"<br><br>Example :<br>--------------------------------<br>From : Tester <testemail@domain.com><br>Date : Tue, 20 Jul 2021 18:10:39 +0000<br>To : Firstname Lastname <email@domain.com><br>Subject : email subject<br><br>Type : boolean.|
-| EmailList      | JSON email rules list.<br><br>The first column is the rules and the second column is where to forward the email.<br><br>If there are no rules that matched with the received email then it will use the catch-all address.<br><br>Example (JSON string) :<br><br>{<br>    "test@": "test@domain.com "<br>    "catch-all": "jonathanmasse@domain.com"<br>}<br><br>Type : string.|
+| EmailList      | JSON email rules list.<br><br>The first column is the rules and the second column is where to forward the email.<br><br>If there are no rules that matched with the received email then it will use the catch-all address.<br><br>Example (JSON string) :<br><br>{<br>    "test@": "test@domain.com"<br>  "multiple-recipients@": ["test1@domain.com", "test2@domain.com"]<br>    "catch-all": "example@domain.com"<br>}<br><br>Type : string.|
 | MailFromEmailAddress | Email to use when forwarding email.<br><br>This parameter is used only when "UseResentHeader" is set to "False"<br><br>Type : string.|
 | Region | Current lambda function Amazon Region to use.<br><br>Type : string.|
 | S3Bucket | S3 Bucket where to store the received email.<br><br>Type : string.|
