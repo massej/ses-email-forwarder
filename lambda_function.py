@@ -277,16 +277,26 @@ Get the forward email address from the dictionary based on the original email ad
 def get_forward_email_to(email: str) -> str:
     # Load email list from environment variable.
     email_list_dictionnary = json.loads(os.environ['EmailList'])
+    separator = ", "
 
     # For each key / value inside the email dictionary.
     for key, value in email_list_dictionnary.items():
 
         # If this is a match, return new destination email address.
         if re.match(key, email):
-            return value
+            # If value is a list.
+            if type(value) is list:
+                return separator.join(value)
+            else:
+                return value
 
     # If there is no match then return the catch-all email address.
-    return email_list_dictionnary['catch-all']
+    # If value is a list.
+    value = email_list_dictionnary['catch-all']
+    if type(value) is list:
+        return separator.join(value)
+    else:
+        return value
 
 
 """
