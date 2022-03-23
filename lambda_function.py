@@ -49,6 +49,26 @@ import json
 
 
 """
+decode_email_list_to_string
+decode email list to string. (If needed).
+If the input value is already a string, it will do nothing.
+Ex : Convert a list ["example1@domain", "example2@domain"] to "example1@domain, example2@domain"
+:param value: The email list to decode.
+:return: decoded email list in string.
+"""
+def decode_email_list_to_string(value) -> str:
+
+    # Email default separator.
+    separator = ", "
+
+    # If value is a list.
+    if type(value) is list:
+        return separator.join(value)
+    else:
+        return value
+
+
+"""
 decode_email_header
 decode email header string
 Ex : It can have encoding parameter (i.e. : UTF-8)
@@ -272,12 +292,11 @@ def append_header_text(mailobject_received: email.message, mailobject_to_send: e
 get_forward_email_to
 Get the forward email address from the dictionary based on the original email address where it was supposed to be sent.
 :param email: Original email destination.
-:return: New email destination.
+:return: List of new email destination.
 """
-def get_forward_email_to(email: str) -> str:
+def get_forward_email_to(email: str) -> list:
     # Load email list from environment variable.
     email_list_dictionnary = json.loads(os.environ['EmailList'])
-    separator = ", "
 
     # For each key / value inside the email dictionary.
     for key, value in email_list_dictionnary.items():
@@ -286,17 +305,17 @@ def get_forward_email_to(email: str) -> str:
         if re.match(key, email):
             # If value is a list.
             if type(value) is list:
-                return separator.join(value)
-            else:
                 return value
+            else:
+                return [value]
 
     # If there is no match then return the catch-all email address.
     # If value is a list.
     value = email_list_dictionnary['catch-all']
     if type(value) is list:
-        return separator.join(value)
-    else:
         return value
+    else:
+        return [value]
 
 
 """
@@ -368,7 +387,7 @@ def create_message(file_dict: object) -> object:
           + " To : " + decode_email_header(mailobject_received['To']) + "\r\n"
           + " Subject : " + decode_email_header(mailobject_received['Subject']) + "\r\n"
           + " Resent-From : " + os.environ['MailFromEmailAddress'] + "\r\n"
-          + " Resent-To : " + mail_to_recipient)
+          + " Resent-To : " + decode_email_list_to_string(mail_to_recipient))
 
     # Create a mixed - MIME container.
     mailobject_to_send = MIMEMultipart("mixed")
@@ -385,12 +404,12 @@ def create_message(file_dict: object) -> object:
         mailobject_to_send['Resent-To'] = mail_to_recipient
         mailobject_to_send['From'] = mailobject_received['From']
         mailobject_to_send['Date'] = mailobject_received['Date']
-        mailobject_to_send['To'] = mailobject_received['To']
+        mailobject_to_send['To'] = decode_email_list_to_string(mailobject_received['To'])
     else:
         mailobject_to_send['Originally-From'] = mailobject_received['From']
         mailobject_to_send['From'] = os.environ['MailFromEmailAddress']
         mailobject_to_send['Date'] = datetime.now(tz=timezone.utc).strftime("%a, %d %b %Y %T %z")
-        mailobject_to_send['To'] = mail_to_recipient
+        mailobject_to_send['To'] = decode_email_list_to_string(mail_to_recipient)
 
     # If you decode and re-encode an header using < > it will convert the < > which can cause issue.
     # i.e. WORKING : mailobject_to_send['Reply-To'] = "=?utf-8?Q?Alex=20de=20Pige=20Qu=C3=A9bec?= <service@pige.quebec>"
@@ -483,9 +502,7 @@ def send_email(message: object) -> str:
         # Provide the contents of the email.
         response = client_ses.send_raw_email(
             Source=os.environ['MailFromEmailAddress'],
-            Destinations=[
-                message['MailToRecipient']
-            ],
+            Destinations=message['MailToRecipient'],
             RawMessage={
                 'Data': message['MailObjectToSend'].as_string()
             }
@@ -541,9 +558,7 @@ def send_error_email(message: object, error: str) -> None:
         # Provide the contents of the email.
         response = client_ses.send_raw_email(
             Source=os.environ['MailFromEmailAddress'],
-            Destinations=[
-                message['MailToRecipient']
-            ],
+            Destinations=message['MailToRecipient'],
             RawMessage={
                 'Data': mailobject_to_send.as_string()
             }
