@@ -389,6 +389,11 @@ def create_message(file_dict: object) -> object:
           + " Resent-From : " + os.environ['MailFromEmailAddress'] + "\r\n"
           + " Resent-To : " + decode_email_list_to_string(mail_to_recipient))
 
+    # If email is to the forwarder then we need to ignore. (Maybe it's a vacation email that is bouncing back.)
+    if decode_email_header(mailobject_received['To']).lower() == os.environ['MailFromEmailAddress']:
+        print(f"Destination email is the same as the forwarder! (Maybe it's a vacation email that is bouncing back.) The forwarder will ignore this email!")
+        exit()
+
     # Create a mixed - MIME container.
     mailobject_to_send = MIMEMultipart("mixed")
     mailobject_to_send.set_charset("utf-8")
