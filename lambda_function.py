@@ -113,8 +113,18 @@ i.e. utf-8, iso-8859-1.
 :return: The content charset (string)
 """
 def get_part_content_charset(current_part: object) -> str:
+
+    part_content_charset = current_part.get_content_charset()
+
+    # If there no charset then it's utf-8.
+    # If the current charset is ascii, we need to replace it to utf-8. (Otherwise if the email subject is utf-8 then we can have encoder issue.)
+    # i.e. UnicodeEncodeError: 'ascii' codec can't encode character '\xe9' in position 49: ordinal not in range(128)
+    if part_content_charset is None or "ascii" in part_content_charset:
+        current_part.set_charset("utf-8")
+        return 'utf-8'
+
     # If charset is not set (None) then, we set to UTF-8 by default.
-    return 'utf-8' if current_part.get_content_charset() is None else current_part.get_content_charset()
+    return part_content_charset
 
 
 """
